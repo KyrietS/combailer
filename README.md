@@ -42,6 +42,7 @@ TBD
 * Zaimplementowany wzorzec Visitor zapewnia możliwość łatwego konstruowania algorytmów analizujących strukturę AST.
 * Zaimplementowano algorytm analizy statycznej sprawdzający, czy użyta zmienna została wcześniej zdefiniowana.
 * Zaimplementowano algorytm wypisujący ze struktury AST wczytany kod źródłowy.
+* Zaimplementowano algorytm generujący kod trójadresowy ze struktury AST.
 
 ## Katalog `lib`
 
