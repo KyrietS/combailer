@@ -1,0 +1,101 @@
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import java_cup.runtime.*;
+import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+
+import relation.*;
+import expression.*;
+import statement.*;
+
+parser code {:
+
+    // Przygotowywanie komunikatu błędu do wyświetlenia.
+    @Override
+    public void report_error(String message, Object info) {
+        if(info instanceof ComplexSymbolFactory.ComplexSymbol){
+            ComplexSymbolFactory.ComplexSymbol symbol = (ComplexSymbolFactory.ComplexSymbol)info;
+            List<String> expectedList = expected_token_names();
+            String expected = expectedList.isEmpty() ? "" : "Expected tokens: " + expectedList;
+            Utils.reportError(message, "for symbol '"+symbol.getName()+"'. "+expected, symbol.getLeft(), symbol.getRight());
+        } else {
+            Utils.reportError(message, "", null, null);
+        }
+    }
+
+    // Błąd składni. Wczytano nieoczekiwany symbol 'symbol'.
+    @Override
+    public void syntax_error(Symbol symbol) {
+        report_error("Syntax error", symbol);
+        throw new Error("Cannot continue due to syntax errors.");      // Zakończ dalsze przetwarzanie pliku
+    }
+
+    // Pomocnicza funkcja, zwraca nazwy oczekiwanych tokenów.
+    private List<String> expected_token_names() {
+        List<Integer> ids = this.expected_token_ids();
+        if(ids == null) return new LinkedList<String>();
+        LinkedList<String> names = new LinkedList<String>();
+        for(Integer id : ids) {
+            names.add(this.symbl_name_from_id(id));
+        }
+        return names;
+    }
+:}
+
+/* Operatory arytmetyczne */
+terminal PLUS, MINUS, MULTIPLY;
+
+/* Operatory relacji */
+terminal GT, LT, EQ;
+
+/* Pozostałe operatory */
+terminal ASSIGN, LPAREN, RPAREN, END;
+
+/* Słowa kluczowe */
+terminal PRINT, IF, THEN, ENDIF;
+
+terminal Integer NUM;
+terminal String ID;
+
+non terminal Program P;                 // Program
+non terminal List<Statement> SL;        // Statement List
+non terminal Statement S;           // Statement
+non terminal Expression E;              // Expression
+non terminal BinaryRelation R;          // Binary Relation
+
+precedence left LT, GT, EQ;
+precedence left PLUS, MINUS;
+precedence left MULTIPLY;
+
+// Program to lista instrukcji (Statement List) 
+P   ::= SL:sl               {: RESULT = new Program(sl); :}
+    ;
+
+// Lista instrukcji to ciąg instrukcji (może być pusty)
+SL  ::= SL:sl S:s           {: sl.add(s); RESULT = sl; :}
+    |                       {: RESULT = new ArrayList<Statement>(); :}
+    ;
+
+// Typy instrukcji
+S   ::= PRINT E:e END               {: RESULT = new PrintStatement(e); :}
+    |   ID:i ASSIGN E:e END         {: RESULT = new AssignStatement(i, e); :}
+    |   IF R:r THEN SL:sl ENDIF     {: RESULT = new IfStatement(r, sl); :}
+    ;
+
+// Typy wyrażeń
+E   ::= E:e1 PLUS E:e2      {: RESULT = new AddExpression(e1, e2); :}
+    |   E:e1 MINUS E:e2     {: RESULT = new SubExpression(e1, e2); :}
+    |   E:e1 MULTIPLY E:e2  {: RESULT = new MulExpression(e1, e2); :}
+    |   LPAREN E:e RPAREN   {: RESULT = new BracesExpression(e); :}
+    |   NUM:n               {: RESULT = new NumberExpression(n); :}
+    |   ID:i                {: RESULT = new VariableExpression(i, ixleft, ixright); :}
+    ;
+
+// Typy warunków
+R   ::= E:e1 GT E:e2        {: RESULT = new GTRelation(e1, e2); :}
+    |   E:e1 LT E:e2        {: RESULT = new LTRelation(e1, e2); :}
+    |   E:e1 EQ E:e2        {: RESULT = new EQRelation(e1, e2); :}
+    ;

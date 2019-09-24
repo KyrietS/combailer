@@ -1,0 +1,5 @@
+# Pliki binarne generowane przez kompilator Javy i Kotlina
+bin/*
+
+# IntelliJ
+out/

@@ -1,0 +1,8 @@
+a = 1 + 2 + 3 + 4 + 5;
+b = 0;
+if a > 10 + 20 then
+    print 10;
+    if a + b > 20 then
+        print 123;
+    endif
+endif
