@@ -1,6 +1,6 @@
-# Prosty analizator składniowy
+# Kompilator języka imperatywnego
 
-Ten projekt służy jako boilerplate pod kompilator pisany w Kotlinie. Jest to w pełni skonfigurowany i gotowy do działania projekt IntelliJ. Przed kompilacją należy wygenerować kod źródłowy lexer'a (JFlex) i parsera (CUP). Aby to zrobić wystarczy uruchomić polecenie `make build`.
+Prosty kompilator, który kompiluje język z wymyśloną przeze mnie składnią do postaci kodu trójadresowego.
 
 ## Wymagania
 
